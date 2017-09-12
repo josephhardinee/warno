@@ -5,7 +5,7 @@ import json
 import os
 
 from pyarmret.io.PAFClient import PAFClient
-from Plugin import Plugin as Plugin
+from .Plugin import Plugin as Plugin
 
 from WarnoConfig import config
 
@@ -54,7 +54,7 @@ class ProSensingPAFPlugin(Plugin):
                 events_payload = json.dumps(events)
                 msg_queue.put('{"event": "%s", "data": {"instrument_id": %s, "time": "%s", "values": %s}}'
                               % ("prosensing_paf", config['instrument_id'], timestamp, events_payload))
-            except Exception, e:
+            except Exception as e:
                 with open(LOGFILE, "a+") as log:
                     log.write("--%s\n%s\n" % (str(self.get_timestamp()), e))
                     traceback.print_exc(limit=5, file=log)

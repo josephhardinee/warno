@@ -270,7 +270,7 @@ def widget_status_plot():
     instrument_groups = {}
 
     for instrument in instruments:
-        if instrument['site'] not in instrument_groups.keys():
+        if instrument['site'] not in list(instrument_groups.keys()):
             instrument_groups[instrument['site']] = [instrument]
         else:
             instrument_groups[instrument['site']].append(instrument)

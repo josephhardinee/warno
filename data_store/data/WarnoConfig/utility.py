@@ -7,7 +7,7 @@ import os
 
 from sqlalchemy import create_engine
 
-import config
+from . import config
 
 EVENT_CODE_REQUEST = 1
 SITE_ID_REQUEST = 2
@@ -151,7 +151,7 @@ def drop_table(table_name, curr):
     sql = "DROP TABLE IF EXISTS %s;"
     try:
         curr.execute(sql, (table_name,))
-    except Exception, e:
+    except Exception as e:
         print(e)
 
 
@@ -167,7 +167,7 @@ def create_table_from_file(filename, curr):
     f = open(filename)
     try:
         curr.execute(f.read())
-    except Exception, e:
+    except Exception as e:
         print(e)
 
 
@@ -224,7 +224,7 @@ def initialize_database(curr, path="schema/"):
 
     for schema in schema_list:
         if not table_exists(schema, curr):
-            print("Initializing relation %s", schema)
+            print(("Initializing relation %s", schema))
             create_table_from_file("%s/%s.schema" % (path, schema), curr)
 
 

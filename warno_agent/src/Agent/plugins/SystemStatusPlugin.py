@@ -7,7 +7,7 @@ import psutil
 from time import sleep
 import logging
 
-from Plugin import Plugin as Plugin
+from .Plugin import Plugin as Plugin
 from WarnoConfig import config
 
 log_path = os.environ.get("LOG_PATH")

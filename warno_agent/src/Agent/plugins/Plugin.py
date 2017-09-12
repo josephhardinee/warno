@@ -1,4 +1,4 @@
-import thread
+import _thread
 
 
 class Plugin(object):

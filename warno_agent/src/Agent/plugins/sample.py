@@ -5,7 +5,7 @@ import os
 import datetime
 from pyarmret.io.PAFClient import PAFClient
 
-from Plugin import Plugin as Plugin
+from .Plugin import Plugin as Plugin
 
 log_path = os.environ.get("LOG_PATH")
 if log_path is None:
@@ -48,7 +48,7 @@ class PAFPlugin(Plugin):
                 events_payload = json.dumps(events)
                 msg_queue.put('{"event": "%s", "data": {"instrument_Id": %s, "time": "%s", "value": %s}}' %
                               ("prosensing_paf", instrument_id, timestamp, events_payload))
-            except UnicodeDecodeError, e:
+            except UnicodeDecodeError as e:
                 with open(LOGFILE, "a+") as log:
                     log.write("\nUnicodeDecodeError\n")
                     log.write(str(e))
@@ -95,7 +95,7 @@ def run(msg_queue, instrument_id):
             events_payload = json.dumps(events)
             msg_queue.put('{"event": "%s", "data": {"instrument_id": %s, "time": "%s", "values": %s}}'\
                           % ("prosensing_paf", instrument_id, timestamp, events_payload))
-        except UnicodeDecodeError, e:
+        except UnicodeDecodeError as e:
             with open(LOGFILE, "a+") as log:
                 log.write("\nUnicodeDecodeError\n")
                 log.write(str(e))

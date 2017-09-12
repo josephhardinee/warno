@@ -463,13 +463,13 @@ def recent_values():
             # If the reference is not 'special', it counts as a non table-organized Redis entry.
             if reference.description == key_pair["key"]:
                 result = redint.get_most_recent_value_for_attribute(instrument_id, key_pair["key"])
-                if result and (len(result.keys()) > 0):
+                if result and (len(list(result.keys())) > 0):
                     key_pair["data"] = (dateutil.parser.parse(result["time"]), float(result["value"]))
             # If the reference is 'special', it counts as a table-organized Redis entry.
             elif reference.special is True:
                 result = redint.get_most_recent_value_for_attribute(instrument_id, key_pair["key"],
                                                                     table_name=reference.description)
-                if result and (len(result.keys()) > 0):
+                if result and (len(list(result.keys())) > 0):
                     key_pair["data"] = (dateutil.parser.parse(result["time"]), float(result["value"]))
 
 
@@ -495,7 +495,7 @@ def recent_values():
                 if sql_query:
                     try:
                         key_pair["data"] = db.session.execute(sql_query, dict(id=instrument_id)).fetchone()
-                    except Exception, e:
+                    except Exception as e:
                         print(e)
                         return json.dumps([])
 
@@ -565,7 +565,7 @@ def generate_instrument_graph():
     keys = {index: dict(key=a_key, data=None) for index, a_key in enumerate(arg_keys)}
 
     # If any key is invalid, sends a blank response
-    for key, value in keys.iteritems():
+    for key, value in keys.items():
         if value["key"] not in valid_columns_for_instrument(instrument_id):
             up_logger.debug("key %s not in valid columns for instrument id %s", value["key"], instrument_id)
             return json.dumps("[]")
@@ -580,7 +580,7 @@ def generate_instrument_graph():
     redint = redis_interface.RedisInterface()
 
     for reference in references:
-        for key, value in keys.iteritems():
+        for key, value in keys.items():
             # If the reference is not 'special', it counts as a non table-organized Redis entry.
             if reference.description == value["key"]:
                 if redint.is_time_before_last_time_for_attribute(instrument_id, value["key"],
@@ -610,7 +610,7 @@ def generate_instrument_graph():
     # For each reference that could not be resolved by Redis, fall back to the main database. Build the SQL query for
     # the given key. If the key is a part of a special table, build a query based on the key and containing table.
     for reference in references:
-        for key, value in keys.iteritems():
+        for key, value in keys.items():
             if value["data"] is None:
                 sql_query = None
                 if reference.description == value["key"]:
@@ -647,12 +647,12 @@ def generate_instrument_graph():
                     try:
                         value["data"] = db.session.execute(sql_query, dict(id=instrument_id, start=start, end=end)).fetchall()
 
-                    except Exception, e:
+                    except Exception as e:
                         print(e)
                         return json.dumps("[]")
 
     data = synchronize_sort(keys)
-    map(iso_first_element, data)
+    list(map(iso_first_element, data))
 
     lower_deviation = 0
     upper_deviation = 0
@@ -733,7 +733,7 @@ def get_attribute_stats(attribute=None, instrument_id=None):
 
             values = [value[0] for value in db_values]
             values = sorted(values)
-            median = values[len(values)/2]
+            median = values[len(values)//2]
 
         elif ref.special is True:
             rows = db.session.execute("SELECT column_name FROM information_schema.columns WHERE table_name = :table",
@@ -749,7 +749,7 @@ def get_attribute_stats(attribute=None, instrument_id=None):
                 db_values = db.session.execute(values_sql, dict(id=instrument_id)).fetchall()
                 values = [value[0] for value in db_values]
                 values = sorted(values)
-                median = values[len(values)/2]
+                median = values[len(values)//2]
                 break
 
     if db_aggregates:
@@ -872,7 +872,7 @@ def update_valid_columns_for_instrument(instrument_id):
             sum_string = ", ".join(["sum(%s)" % column for column in excluded_columns])
             sql = "SELECT %s FROM %s WHERE instrument_id = %s" % (sum_string, ref.description, instrument_id)
             column_sums = db.session.execute(sql).first()
-            zipper = zip(excluded_columns, column_sums)
+            zipper = list(zip(excluded_columns, column_sums))
             # Only add each column if the sum associated with it is not 'None', meaning there is a valid value
             # somewhere in the column.
             added_columns = [column[0] for column in zipper if column[1] is not None]
@@ -932,11 +932,11 @@ def synchronize_sort(dataset_dict):
     length = len(dataset_dict)
 
     # This sums the lengths of the data sets being sorted.
-    while sum([len(value["data"]) for _, value in dataset_dict.iteritems()]) > 0:
+    while sum([len(value["data"]) for _, value in dataset_dict.items()]) > 0:
 
         # Gets a list of the times containing the first element of each data set (therefore, the most earliest time for
         # the set), but only if the set is not empty.
-        first_elem_times = [value["data"][-1][0] for _, value in dataset_dict.iteritems() if len(value["data"]) > 0]
+        first_elem_times = [value["data"][-1][0] for _, value in dataset_dict.items() if len(value["data"]) > 0]
         # Gets the earliest of the times of the data sets
         min_time = min(first_elem_times)
 
@@ -946,7 +946,7 @@ def synchronize_sort(dataset_dict):
         # data sets and the first elements of each are (1:00, 15), (2:00, 30) and (1:00, 20), the result element would
         # be [1:00, 15, None, 20].
         values_at_time = [min_time] + [None] * length
-        for set_number, value in dataset_dict.iteritems():
+        for set_number, value in dataset_dict.items():
             # Any data sets that have elements and have a time equal to the time for this point puts that data
             # in for that point and removes that element from its list.  Updates the index of the data point
             # that corresponds to the list's dictionary value.  This assures that each element of the packet
