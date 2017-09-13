@@ -93,10 +93,6 @@ Vagrant.configure(2) do |config|
   # Add crontab for regular database backup (currently once daily)
   config.vm.provision :shell, inline: "(crontab -l; echo '0 22 * * * bash /vagrant/data_store/data/db_save.sh') | crontab -"
 
-  # Temp
-  config.vm.provision :shell, path: "utility_setup_scripts/bootstrap.sh", privileged: false
-  config.vm.provision :shell, path: "utility_setup_scripts/pip_bootstrap.sh", privileged: false
-
   # Add hosts to /etc/hosts
   config.vm.provision :shell, path: "utility_setup_scripts/add_hosts.sh"
 
