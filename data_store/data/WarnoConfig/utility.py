@@ -9,6 +9,7 @@ from sqlalchemy import create_engine
 
 from . import config
 
+# Definitions for special event codes.  These events will probably be handled as special cases throughout the code base.
 EVENT_CODE_REQUEST = 1
 SITE_ID_REQUEST = 2
 INSTRUMENT_ID_REQUEST = 3
