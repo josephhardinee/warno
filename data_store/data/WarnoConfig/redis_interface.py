@@ -24,7 +24,7 @@ class RedisInterface:
             The port of the Redis server to connect to. Default Redis port is 6379.
 
         """
-        self._r = redis.Redis(host, port)
+        self._r = redis.Redis(host, port, decode_responses=True)
 
     def get_most_recent_value_for_attribute(self, instrument_id, attribute, table_name=None):
         """Return the most recent value for each of the given 'attribute' for the specified 'instrument_id'. If
@@ -141,9 +141,9 @@ class RedisInterface:
         start_time_unaware = start_time.replace(tzinfo=None)
         end_time_unaware = end_time .replace(tzinfo=None)
 
-        result = [(entry_time.decode(), entry_value.decode()) for entry_time, entry_value in db_time_value_pairs
-                  if (ciso8601.parse_datetime(entry_time.decode()) >= start_time_unaware)
-                  and (ciso8601.parse_datetime(entry_time.decode()) <= end_time_unaware)]
+        result = [(entry_time, entry_value) for entry_time, entry_value in db_time_value_pairs
+                  if (ciso8601.parse_datetime(entry_time) >= start_time_unaware)
+                  and (ciso8601.parse_datetime(entry_time) <= end_time_unaware)]
 
         return result
 
@@ -485,10 +485,10 @@ class RedisInterface:
         # Key construction varies depending on whether the attribute is organized under a table.
         if table_name:
             db_time_key = self._build_table_time_key(clean_instrument_id, table_name)
-            db_result = self._r.lindex(db_time_key, -1).decode()
+            db_result = self._r.lindex(db_time_key, -1)
         else:
             db_key = self._build_base_attribute_key(clean_instrument_id, attribute)
-            db_result = self._r.lindex(db_key + ":time", -1).decode()
+            db_result = self._r.lindex(db_key + ":time", -1)
 
         if len(db_result) > 0:
             last_time = ciso8601.parse_datetime(db_result).replace(tzinfo=pytz.utc)
