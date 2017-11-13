@@ -5,7 +5,7 @@ A Vagrant virtual machine containing multiple servers, with each server providin
 <br><br>
 - **Agent**: Runs plugins to interface directly with the instruments and process the data before sending it to the site's Event Manager.
 
-- **Event Manager**: Receives data from all Agents on site, compiles the data, and communicates with the main facility's Event Manager.  The main Event Manager processes and stores the data from all sites in the Database
+- **Event Manager**: Receives data from all Agents on site, compiles the data, and communicates with the main facility's Event Manager.  The main Event Manager processes and stores the data from all sites in the Database.
 
 - **User Portal**: Flask web application that provides a user interface to process and display the information saved by the main Event Manager.
 
