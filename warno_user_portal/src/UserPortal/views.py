@@ -290,7 +290,7 @@ def query():
         try:
             data = db.session.execute(query_arg).fetchall()
             db.session.execute('COMMIT')
-        except SAProgrammingError, e:
+        except SAProgrammingError as e:
             data = "Invalid Query.  Error: %s" % e
             up_logger.warn("Invalid Query.  Error: %s", e)
 

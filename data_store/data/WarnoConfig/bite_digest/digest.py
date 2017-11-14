@@ -18,14 +18,14 @@ class Digest():
 
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.s.connect(target_address)
-        self.s.send("interrogate")
+        self.s.send("interrogate".encode())
 
         message = self.recvall(self.s)
         self.s.close()
 
         if self.DEBUG:
             print(">>DEBUG>>>Message Received Repr:")
-            print(repr(message))
+            print((repr(message)))
 
         data_block = ""
         if len(message) > 4:
@@ -34,23 +34,23 @@ class Digest():
 
         if self.DEBUG:
             print (">>DEBUG>>>Data Block before literal_eval")
-            print data_block
+            print(data_block)
 
         data = ast.literal_eval(data_block)
 
         if self.DEBUG:
             print (">>DEBUG>>>Eval'ed data type:")
-            print type(data)
+            print(type(data))
             print (">>DEBUG>>>Number of keys for data (assumes dict):")
-            print len(data.keys())
+            print(len(list(data.keys())))
 
         if isinstance(data, dict):
-            for key in data.keys():
+            for key in list(data.keys()):
                 if isinstance(data[key], dict):
                     data[key] = data[key]["value"]
         if self.DEBUG:
             print (">>DEBUG>>>Data after conversions of second layer dicts into flat values:")
-            print data
+            print(data)
 
         return data
 
@@ -59,7 +59,7 @@ class Digest():
     def recvall(self, sock):
         self.buffer = ""
         while sock in select([sock, ], [], [], 1)[0]:
-            self.buffer += sock.recv(1000)
+            self.buffer += sock.recv(1000).decode('latin-1')
             if self.buffer is '':
                 return self.buffer
         return self.buffer

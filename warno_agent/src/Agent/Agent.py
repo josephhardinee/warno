@@ -136,7 +136,7 @@ class Agent(object):
                                     'config_id': instrument_name
                                     }, instrument)
                                 for instrument_name, instrument
-                                in self.config_ctxt['agent']['instrument_list'].iteritems()]
+                                in self.config_ctxt['agent']['instrument_list'].items()]
 
         #Set up logging
         log_path = os.environ.get("LOG_PATH")
@@ -220,7 +220,7 @@ class Agent(object):
                     candidate_plugin.path = plugin
                     if hasattr(candidate_plugin, 'get_registration_info') and hasattr(candidate_plugin, 'run'):
                         plugin_manager.add_plugin(candidate_plugin)
-            except Exception, e:
+            except Exception as e:
                 logging.warning(e)
 
         return plugin_manager.get_plugin_handle_list()

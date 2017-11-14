@@ -490,7 +490,7 @@ def save_special_event(msg, msg_struct):
                                               msg_struct['data']['instrument_id'])
     redis_attributes = []
     redis_values = []
-    for key, value in msg_struct['data']['values'].iteritems():
+    for key, value in msg_struct['data']['values'].items():
         sql_query_a = ', '.join([sql_query_a, key])
         # Converts inf and -inf to Postgresql equivalents
 
@@ -994,7 +994,7 @@ def clear_and_populate_redis():
                 time_list = [row[0] for row in reversed_result]
                 temp_group = []
                 # Need to rearrange entries into the format expected by the Redis interface.
-                for index in xrange(1, len(columns)):
+                for index in range(1, len(columns)):
                     temp_group.append([row[index] if row[index] is not None else "NULL"
                                                               for row in reversed_result])
                 # Don't pass the first entry in 'columns' as it is 'time', which already has its own list passed.

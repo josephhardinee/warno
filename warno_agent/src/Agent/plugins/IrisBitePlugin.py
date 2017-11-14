@@ -4,7 +4,7 @@ import time
 import json
 import os
 
-from Plugin import Plugin as Plugin
+from .Plugin import Plugin as Plugin
 
 from WarnoConfig import config
 from WarnoConfig.bite_digest.digest import Digest
@@ -50,11 +50,11 @@ class IrisBitePlugin(Plugin):
                 events = iris_digest.get_data(base_url, base_port)
                 # Have to clean some of the BITE labels to allow them to be colummn names for postgresql
                 clean_events = { key.replace('+', 'pos').replace('-', 'minus').replace('.', '_').replace('/', '_').replace(' ', '_'): value
-                                 for key, value in events.iteritems()}
+                                 for key, value in events.items()}
                 events_payload = json.dumps(clean_events)
                 msg_queue.put('{"event": "%s", "data": {"instrument_id": %s, "time": "%s", "values": %s}}'
                               % ("iris_bite", config['instrument_id'], timestamp, events_payload))
-            except Exception, e:
+            except Exception as e:
                 with open(LOGFILE, "a+") as log:
                     log.write("--%s\n%s\n" % (str(self.get_timestamp()), e))
                     traceback.print_exc(limit=5, file=log)

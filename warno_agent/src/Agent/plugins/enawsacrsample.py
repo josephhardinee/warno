@@ -33,7 +33,7 @@ def run(msg_queue, instrument_id):
             events_payload = json.dumps(events)
             msg_queue.put('{"event": "%s", "data": {"instrument_id": %s, "time": "%s", "values": %s}}'\
                           % ("prosensing_paf", instrument_id, timestamp, events_payload))
-        except UnicodeDecodeError, e:
+        except UnicodeDecodeError as e:
             with open(LOGFILE, "a+") as log:
                 log.write("\nUnicodeDecodeError\n")
                 log.write(str(e))

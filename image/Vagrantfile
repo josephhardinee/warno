@@ -1,0 +1,60 @@
+VAGRANTFILE_API_VERSION = "2"
+
+env_var_cmd = ""
+if ENV['WARNO']
+  value = ENV['WARNO']
+  env_var_cmd = <<CMD
+echo "export WARNO=#{value}" | tee -a /home/vagrant/.profile
+CMD
+end
+
+script = <<SCRIPT
+#{env_var_cmd}
+SCRIPT
+
+
+
+Vagrant.configure(2) do |config|
+
+  # Automatic remote box
+  config.vm.box = "centos/7"
+  #config.vm.box_url = "http://yggdrasil.pnl.gov/warno1.box"
+
+  config.vm.network "private_network", ip: "192.168.50.99"
+  config.vm.hostname = "warno1"
+  config.vm.provider "virtualbox" do |v|
+    v.name = "warno1"
+    # CentOS needs more memory than the default, otherwise docker containers
+    # may be killed by the kernel
+    v.memory = 1024
+  end
+
+  config.vm.provision :shell, inline: "yum -y install deltarpm"
+
+  ## Set up NFS shared folders ##
+  config.vm.provision :shell, inline: "yum -y update"
+  config.vm.provision :shell, inline: "yum -y install nfs-utils nfs-utils-lib git"
+  # Disable the CentOS default RSYNC one way synchronization
+  config.vm.synced_folder ".", "/home/vagrant/sync", disabled: true
+
+  ## Automatic update/install ##
+  config.vm.provision :shell, inline: "yum groupinstall -y 'Development Tools'"
+  config.vm.provision :shell, inline: "yum -y install openssh-server"
+  config.vm.provision :shell, inline: "yum -y install epel-release"
+  config.vm.provision :shell, inline: "yum -y install nginx vim inotify-tools systemd libffi-devel"
+  config.vm.provision :shell, inline: "yum -y localinstall http://yum.postgresql.org/9.3/redhat/rhel-7-x86_64/pgdg-centos93-9.3-2.noarch.rpm"
+  config.vm.provision :shell, inline: "yum install -y postgresql93 postgresql93-contrib postgresql93-server wget bzip2"
+  # Without this,SELinux on CentOS blocks docker containers from
+  # accessing the NFS shared folders
+  config.vm.provision :shell, inline: "setenforce 0", run: "always"
+
+  
+
+  # Must be unprivileged so Anaconda paths install for the vagrant user
+  config.vm.provision :shell, path: "bootstrap.sh", privileged: false
+  # Pip installations must be run in a separate bootstrap script, reason unknown
+  config.vm.provision :shell, path: "pip_bootstrap.sh", privileged: false
+
+  ## Install Redis ##
+  config.vm.provision :shell, path: "install_redis.sh"
+end

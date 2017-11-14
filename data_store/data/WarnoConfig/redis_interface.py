@@ -1,4 +1,4 @@
-from __future__ import print_function
+
 
 import ciso8601
 import datetime
@@ -24,7 +24,7 @@ class RedisInterface:
             The port of the Redis server to connect to. Default Redis port is 6379.
 
         """
-        self._r = redis.Redis(host, port)
+        self._r = redis.Redis(host, port, decode_responses=True)
 
     def get_most_recent_value_for_attribute(self, instrument_id, attribute, table_name=None):
         """Return the most recent value for each of the given 'attribute' for the specified 'instrument_id'. If
@@ -52,7 +52,7 @@ class RedisInterface:
 
         """
 
-        if not isinstance(attribute, str) and not isinstance(attribute, unicode):
+        if not isinstance(attribute, str) and not isinstance(attribute, str):
             print("Attribute must be a string.")
             return {}
 
@@ -136,7 +136,7 @@ class RedisInterface:
             db_base_key = self._build_base_attribute_key(clean_instrument_id, attribute)
             db_times = self._r.lrange(db_base_key + ":time", 0, self.MAX_INDEX)
             db_values = self._r.lrange(db_base_key + ":value", 0, self.MAX_INDEX)
-        db_time_value_pairs = zip(db_times, db_values)
+        db_time_value_pairs = list(zip(db_times, db_values))
 
         start_time_unaware = start_time.replace(tzinfo=None)
         end_time_unaware = end_time .replace(tzinfo=None)
@@ -289,7 +289,7 @@ class RedisInterface:
         self._r.ltrim(time_key, 0, self.MAX_INDEX)
 
         keys = []
-        for index in xrange(0, len(attribute_list)):
+        for index in range(0, len(attribute_list)):
             base_key = self._build_base_attribute_key(clean_instrument_id, attribute_list[index], table_name=table_name)
             value_key = "".join([base_key, ":value"])
             keys.append(value_key)
@@ -404,7 +404,7 @@ class RedisInterface:
             pipe.ltrim(time_key, 0, self.MAX_INDEX)
             # Checks each value row's first element. If it is "NULL", it is worth checking if the whole row is "NULL".
             check_nulls_for_row = [True if row[0] == "NULL" else False for row in value_list]
-            for index in xrange(0, len(attributes)):
+            for index in range(0, len(attributes)):
                 attribute = attributes[index]
                 all_nulls_in_row = False
 
@@ -427,7 +427,7 @@ class RedisInterface:
         else:
             # This condition may be extraneous, due to the fact that this function was primarily created for bulk
             # inserts of table-organized data.
-            for index in xrange(0, len(attributes)):
+            for index in range(0, len(attributes)):
                 attribute = attributes[index]
                 base_key = self._build_base_attribute_key(clean_instrument_id, attribute, table_name=table_name)
                 time_key = "".join([base_key, ":time"])
@@ -624,7 +624,7 @@ class RedisInterface:
             table_section = "".join([table_name, ":"])
         else:
             table_section = ""
-        base_key = "".join(["instruments:", str(instrument_id), ":", table_section,  attribute])
+        base_key = "".join(["instruments:", str(instrument_id), ":", str(table_section),  str(attribute)])
         return base_key
 
     @staticmethod

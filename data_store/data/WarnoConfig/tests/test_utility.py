@@ -23,11 +23,11 @@ class TestUtilityFunctions(TestCase):
         either an integer or a basic string representation of an integer."""
         function_return_for_2 = utility.status_code_to_text(1)
         expected_return_for_1 = "OPERATIONAL"
-        self.assertEquals(function_return_for_2, expected_return_for_1, "1 should have been 'OPERATIONAL'")
+        self.assertEqual(function_return_for_2, expected_return_for_1, "1 should have been 'OPERATIONAL'")
 
         function_return_for_2 = utility.status_code_to_text("2")
         expected_return_for_2 = "NOT WORKING"
-        self.assertEquals(function_return_for_2, expected_return_for_2, "2 should have been 'NOT WORKING'")
+        self.assertEqual(function_return_for_2, expected_return_for_2, "2 should have been 'NOT WORKING'")
 
     @mock.patch(__name__ + ".utility.create_engine")
     def test_save_rows_to_table_with_small_data_calls_expected_queries(self, create_engine):
