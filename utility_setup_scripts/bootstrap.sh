@@ -4,7 +4,7 @@ if [ "$ANACONDA_HOME" = "" ]; then
     ANACONDA_HOME=/home/vagrant
 fi
 
-miniconda=Miniconda-latest-Linux-x86_64.sh
+miniconda=Miniconda3-latest-Linux-x86_64.sh
 cd $ANACONDA_HOME
 if [[ ! -f $miniconda ]]; then
     wget --quiet http://repo.continuum.io/miniconda/$miniconda
